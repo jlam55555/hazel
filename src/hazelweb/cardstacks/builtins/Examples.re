@@ -382,7 +382,12 @@ let tests_test =
   |> Sexplib.Sexp.of_string
   |> UHExp.t_of_sexp;
 
-let examples = [
+let tests_idgen_test =
+  {|((edit_state((((ExpLine(OpSeq(Placeholder 0)(S(Lam NotInHole(OpSeq(Placeholder 0)(S(EmptyHole 1)E))((ExpLine(OpSeq(Placeholder 0)(S(EmptyHole 2)E)))))E)))(ExpLine(OpSeq(BinOp NotInHole Space(Placeholder 0)(Placeholder 1))(S(Keyword(Typed Test NotInHole 3))(A Space(S(BoolLit NotInHole true)E)))))(ExpLine(OpSeq(BinOp NotInHole Space(Placeholder 0)(Placeholder 1))(S(Keyword(Typed Test NotInHole 4))(A Space(S(BoolLit NotInHole false)E))))))(ExpLineZ(ZOpSeq(Placeholder 0)(ZOperand(CursorE(OnDelim 0 Before)(EmptyHole 46))(E E))))())Hole(46 4)))(width 80)(start_col_of_vertical_movement())(is_focused false))|}
+  |> Sexplib.Sexp.of_string
+  |> Program.t_of_sexp;
+
+let _examples = [
   ("hole", just_hole),
   ("lambda", holey_lambda),
   ("let", let_line),
@@ -392,10 +397,12 @@ let examples = [
   ("tests", tests_test),
 ];
 
-let example_to_card = ((name: string, e: UHExp.t)): CardInfo.t => {
+let examples = [("idgen test", tests_idgen_test)];
+
+let example_to_card = ((name: string, init_program: Program.t)): CardInfo.t => {
   name,
   caption: Virtual_dom.Vdom.Node.div([], []),
-  init_zexp: ZExp.place_before(e),
+  init_program,
 };
 
 let cardstack: CardstackInfo.t = {
@@ -403,13 +410,13 @@ let cardstack: CardstackInfo.t = {
   cards: List.map(example_to_card, examples),
 };
 
-let tests = [
+let _tests = [
   ("quicksort x1", qsort_n(1)),
   ("quicksort x10", qsort_n(10)),
   ("quicksort x100", qsort_n(100)),
 ];
 
-let teststack: CardstackInfo.t = {
-  title: "tests",
-  cards: List.map(example_to_card, tests),
-};
+// let _teststack: CardstackInfo.t = {
+//   title: "tests",
+//   cards: List.map(example_to_card, tests),
+// };

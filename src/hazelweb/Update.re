@@ -230,6 +230,13 @@ let apply_action =
           |> Serialization.string_of_zexp
           |> Js.string
           |> JSUtil.log
+        | Program =>
+          model
+          |> Model.get_program
+          |> Program.sexp_of_t
+          |> Sexplib.Sexp.to_string
+          |> Js.string
+          |> JSUtil.log
         };
         model;
       };
