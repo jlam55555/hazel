@@ -204,6 +204,7 @@ and matches_cast_Inj =
   | Let(_, _, _) => Indet
   | FixF(_, _, _) => DoesNotMatch
   | Lam(_, _, _) => DoesNotMatch
+  | Closure(_, _, _, _) => DoesNotMatch
   | Ap(_, _) => Indet
   | BinBoolOp(_, _, _)
   | BinIntOp(_, _, _)
@@ -269,6 +270,7 @@ and matches_cast_Pair =
   | Let(_, _, _) => Indet
   | FixF(_, _, _) => DoesNotMatch
   | Lam(_, _, _) => DoesNotMatch
+  | Closure(_, _, _, _) => DoesNotMatch
   | Ap(_, _) => Indet
   | BinBoolOp(_, _, _)
   | BinIntOp(_, _, _)
@@ -340,6 +342,7 @@ and matches_cast_Cons =
   | Let(_, _, _) => Indet
   | FixF(_, _, _) => DoesNotMatch
   | Lam(_, _, _) => DoesNotMatch
+  | Closure(_, _, _, _) => DoesNotMatch
   | Ap(_, _) => Indet
   | BinBoolOp(_, _, _)
   | BinIntOp(_, _, _)
@@ -360,6 +363,7 @@ and matches_cast_Cons =
   };
 
 /* closed substitution [d1/x]d2*/
+// FIXME: remove for evaluation with environments
 let rec subst_var = (d1: DHExp.t, x: Var.t, d2: DHExp.t): DHExp.t =>
   switch (d2) {
   | BoundVar(y) =>
@@ -389,6 +393,14 @@ let rec subst_var = (d1: DHExp.t, x: Var.t, d2: DHExp.t): DHExp.t =>
       };
     FixF(y, ty, d3);
   | Lam(dp, ty, d3) =>
+    if (DHPat.binds_var(x, dp)) {
+      d2;
+    } else {
+      let d3 = subst_var(d1, x, d3);
+      Lam(dp, ty, d3);
+    }
+  // FIXME: placeholder for now, will remove subst_var completely lately
+  | Closure(_, dp, ty, d3) =>
     if (DHPat.binds_var(x, dp)) {
       d2;
     } else {
@@ -525,6 +537,7 @@ let eval_bin_float_op =
   };
 };
 
+// FIXME: update for evaluation with environments
 let rec evaluate = (d: DHExp.t): result =>
   switch (d) {
   | BoundVar(x) => raise(EvaluatorError.Exception(FreeInvalidVar(x)))
@@ -540,6 +553,8 @@ let rec evaluate = (d: DHExp.t): result =>
     }
   | FixF(x, _, d1) => evaluate(subst_var(d, x, d1))
   | Lam(_, _, _) => BoxedValue(d)
+  // FIXME: placeholder for now
+  | Closure(_, _, _, _) => BoxedValue(d)
   | Ap(d1, d2) =>
     switch (evaluate(d1)) {
     | BoxedValue(Lam(dp, _, d3)) =>

@@ -42,7 +42,8 @@ let rec precedence = (~show_casts: bool, d: DHExp.t) => {
   | Triv
   | FailedCast(_)
   | InvalidOperation(_)
-  | Lam(_) => DHDoc_common.precedence_const
+  | Lam(_)
+  | Closure(_) => DHDoc_common.precedence_const
   | Cast(d1, _, _) =>
     show_casts ? DHDoc_common.precedence_const : precedence'(d1)
   | Let(_)
@@ -280,6 +281,23 @@ let rec mk =
        };
        */
       | Lam(dp, ty, dbody) =>
+        if (settings.show_fn_bodies) {
+          let body_doc = (~enforce_inline) =>
+            mk_cast(go(~enforce_inline, dbody));
+          hcats([
+            DHDoc_common.Delim.sym_Lam,
+            DHDoc_Pat.mk(~enforce_inline=true, dp),
+            DHDoc_common.Delim.colon_Lam,
+            DHDoc_Typ.mk(~enforce_inline=true, ty),
+            DHDoc_common.Delim.open_Lam,
+            body_doc |> DHDoc_common.pad_child(~enforce_inline),
+            DHDoc_common.Delim.close_Lam,
+          ]);
+        } else {
+          annot(DHAnnot.Collapsed, text("<fn>"));
+        }
+      // FIXME: placeholder for now
+      | Closure(_, dp, ty, dbody) =>
         if (settings.show_fn_bodies) {
           let body_doc = (~enforce_inline) =>
             mk_cast(go(~enforce_inline, dbody));

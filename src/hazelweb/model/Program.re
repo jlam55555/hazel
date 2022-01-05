@@ -112,6 +112,10 @@ let rec renumber_result_only =
   | Lam(x, ty, d1) =>
     let (d1, hii) = renumber_result_only(path, hii, d1);
     (Lam(x, ty, d1), hii);
+  // FIXME: placeholder for now
+  | Closure(_, x, ty, d1) =>
+    let (d1, hii) = renumber_result_only(path, hii, d1);
+    (Lam(x, ty, d1), hii);
   | Ap(d1, d2) =>
     let (d1, hii) = renumber_result_only(path, hii, d1);
     let (d2, hii) = renumber_result_only(path, hii, d2);
@@ -208,6 +212,10 @@ let rec renumber_sigmas_only =
     let (d1, hii) = renumber_sigmas_only(path, hii, d1);
     (FixF(x, ty, d1), hii);
   | Lam(x, ty, d1) =>
+    let (d1, hii) = renumber_sigmas_only(path, hii, d1);
+    (Lam(x, ty, d1), hii);
+  // FIXME: placeholder for now
+  | Closure(_, x, ty, d1) =>
     let (d1, hii) = renumber_sigmas_only(path, hii, d1);
     (Lam(x, ty, d1), hii);
   | Ap(d1, d2) =>
