@@ -146,6 +146,7 @@ type t =
   | Let(DHPat.t, t, t)
   | FixF(Var.t, HTyp.t, t)
   | Lam(DHPat.t, HTyp.t, t)
+  | Closure(environment, DHPat.t, HTyp.t, t)
   | Ap(t, t)
   | BoolLit(bool)
   | IntLit(int)
@@ -166,7 +167,23 @@ type t =
 and case =
   | Case(t, list(rule), int)
 and rule =
-  | Rule(DHPat.t, t);
+  | Rule(DHPat.t, t)
+and environment = VarMap.t_(t);
+
+module Environment = {
+  [@deriving sexp]
+  type t = environment;
+  include VarMap;
+
+  let id_env = (ctx: VarCtx.t): t =>
+    VarMap.map(
+      xt => {
+        let (x, _) = xt;
+        BoundVar(x);
+      },
+      ctx,
+    );
+};
 
 let constructor_string = (d: t): string =>
   switch (d) {
@@ -179,6 +196,7 @@ let constructor_string = (d: t): string =>
   | Let(_, _, _) => "Let"
   | FixF(_, _, _) => "FixF"
   | Lam(_, _, _) => "Lam"
+  | Closure(_, _, _, _) => "Closure"
   | Ap(_, _) => "Ap"
   | BoolLit(_) => "BoolLit"
   | IntLit(_) => "IntLit"

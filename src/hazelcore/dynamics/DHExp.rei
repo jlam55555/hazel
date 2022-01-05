@@ -59,6 +59,8 @@ type t =
   | Let(DHPat.t, t, t)
   | FixF(Var.t, HTyp.t, t)
   | Lam(DHPat.t, HTyp.t, t)
+  // Combination of a lambda with its bound environment
+  | Closure(environment, DHPat.t, HTyp.t, t)
   | Ap(t, t)
   | BoolLit(bool)
   | IntLit(int)
@@ -79,7 +81,18 @@ type t =
 and case =
   | Case(t, list(rule), int)
 and rule =
-  | Rule(DHPat.t, t);
+  | Rule(DHPat.t, t)
+and environment = VarMap.t_(t);
+
+// Environment is mutually recursive with DHExp, so it must be
+// declared here.
+module Environment: {
+  [@deriving sexp]
+  type t = environment;
+  include (module type of VarMap);
+
+  let id_env: VarCtx.t => t;
+};
 
 let constructor_string: t => string;
 
