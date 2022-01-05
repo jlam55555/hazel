@@ -84,16 +84,6 @@ and rule =
   | Rule(DHPat.t, t)
 and environment = VarMap.t_(t);
 
-// Environment is mutually recursive with DHExp, so it must be
-// declared here.
-module Environment: {
-  [@deriving sexp]
-  type t = environment;
-  include (module type of VarMap);
-
-  let id_env: VarCtx.t => t;
-};
-
 let constructor_string: t => string;
 
 let mk_tuple: list(t) => t;

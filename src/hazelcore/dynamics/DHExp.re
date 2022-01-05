@@ -170,21 +170,6 @@ and rule =
   | Rule(DHPat.t, t)
 and environment = VarMap.t_(t);
 
-module Environment = {
-  [@deriving sexp]
-  type t = environment;
-  include VarMap;
-
-  let id_env = (ctx: VarCtx.t): t =>
-    VarMap.map(
-      xt => {
-        let (x, _) = xt;
-        BoundVar(x);
-      },
-      ctx,
-    );
-};
-
 let constructor_string = (d: t): string =>
   switch (d) {
   | EmptyHole(_, _, _) => "EmptyHole"
